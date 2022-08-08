@@ -9,7 +9,6 @@
   <body>
 
     <div id="app">
-
       <header class="top-bar spread">
         <nav class="top-bar-nav">
           <a href="#" class="top-bar-link">
@@ -40,7 +39,6 @@
         <h2>Recommended</h2>
 
         <div class="recommended">
-
           <div class="card">
             <div class="card-title">
               Carrots
@@ -69,13 +67,13 @@
                     <label>Quantity:</label>
                   </div>
                   <div class="cell">
-                    <input type="number" value="0">
+                    <input type="number" v-model.number="inventory.carrots">
                   </div>
                 </div>
               </form>
             </div>
             <div class="card-footer">
-              <button class="btn btn-light">Add to cart</button>
+              <button class="btn btn-light" @click="addToCart('carrots', inventory.carrots)">Add to cart</button>
             </div>
           </div>
 
@@ -107,13 +105,13 @@
                     <label>Quantity:</label>
                   </div>
                   <div class="cell">
-                    <input type="number" value="0">
+                    <input type="number" v-model.number="inventory.pineapples">
                   </div>
                 </div>
               </form>
             </div>
             <div class="card-footer">
-              <button class="btn btn-light">Add to cart</button>
+              <button class="btn btn-light" @click="addToCart('pineapples', inventory.pineapples)">Add to cart</button>
             </div>
           </div>
 
@@ -145,25 +143,48 @@
                     <label>Quantity:</label>
                   </div>
                   <div class="cell">
-                    <input type="number" value="0">
+                    <input type="number" v-model.number="inventory.cherries">
                   </div>
                 </div>
               </form>
             </div>
             <div class="card-footer">
-              <button class="btn btn-light">Add to cart</button>
+              <button class="btn btn-light" @click="addToCart('cherries', inventory.cherries)">Add to cart</button>
             </div>
           </div>
-
         </div>
-
       </main>
 
       <footer>
       </footer>
 
     </div>
-      
+    <script src="https://unpkg.com/vue@3"></script>
+
+    <script>
+      let app = Vue.createApp({
+        data(){
+          return{
+            inventory:{
+              carrots:0,
+              pineapples:0,
+              cherries:0
+            },
+            cart:{
+              carrots:0,
+              pineapples:0,
+              cherries:0
+            }
+          }
+        },
+        methods:{
+          addToCart(type, quantity){
+            this.cart[type] += quantity
+            console.log(type, this.cart[type]);
+          }
+        }
+      })
+      app.mount('#app')
     </script>
   </body>
 </html>
