@@ -24,7 +24,7 @@
         </nav>
         <a @click="toggleSidebar()" class="top-bar-cart-link">
           <i class="icofont-cart-alt icofont-1x"></i>
-          <span>Cart (0)</span>
+          <span>Cart ({{cartQuantities}})</span>
         </a>
       </header>
 
@@ -44,8 +44,7 @@
               {{product.name}}
             </div>
             <div class="card-body">
-              {{product.icon}}
-              <!-- <i class=`icofont-10x icofont-${product.icon}`></i> -->
+              <i class='icofont-10x icofont-carrot'></i>
               <form>
                 <div class="row">
                   <div class="cell">
@@ -84,6 +83,7 @@
           @close-sidebar="toggleSidebar()"
           :cart-data="cart"
           :inventory="inventory"
+          @remove-item="removeItem($event)"
         />
       </main>
 
@@ -107,14 +107,25 @@
           const data = await response.json()
           this.inventory = data
         },
+        computed:{
+          cartQuantities(){
+            return Object.values(this.cart).reduce((previousValue, currentValue)=> previousValue+currentValue, 0)
+          }
+        },
         methods:{
           addToCart(product){
             if(!this.cart[product.name]) this.cart[product.name]=0
             this.cart[product.name] += product.quantity
-            // console.log(this.cart);
+            console.log(Object.values(this.cart));
+            console.log(Object.values(this.cart).reduce((previousValue, currentValue)=> previousValue+currentValue, 0));
+            
+            product.quantity = 0
           },
           toggleSidebar(){
             this.isShowSidebar = ! this.isShowSidebar
+          },
+          removeItem(keyName){
+            delete this.cart[keyName]
           }
         }
       })
@@ -149,9 +160,9 @@
                       <td>{{key}}</td>
                       <td>\${{getPrice(key)}}</td>
                       <td class="center">{{quantity}}</td>
-                      <td>\${{cartTotal}}</td>
+                      <td>\${{getPrice(key)*quantity.toFixed(2)}}</td>
                       <td class="center">
-                        <button class="btn btn-light cart-remove">
+                        <button class="btn btn-light cart-remove" @click="removeCartItem(key)">
                           &times;
                         </button>
                       </td>
@@ -159,9 +170,9 @@
                   </tbody>
                 </table>
 
-                <p class="center"><em>No items in cart</em></p>
+                <p class="center" v-if="Object.keys(cartData).length===0"><em>No items in cart</em></p>
                 <div class="spread">
-                  <span><strong>Total:</strong> \${{cartTotal}}</span>
+                  <span><strong>Total:</strong>\${{calculateCartTotal}}</span>
                   <button class="btn btn-light">Checkout</button>
                 </div>
               </div>
@@ -175,12 +186,21 @@
           getPrice(name){
             const product = this.inventory.find(item => item.name === name)
             return product.price.USD
+          },
+          removeCartItem(keyName){
+            this.$emit('remove-item', keyName)
           }
         },
         computed:{
           cartTotal(){
             return (this.cartData.carrots*4.82).toFixed(2)
-          }
+          },
+          calculateCartTotal(){
+            const cartNamesList = Object.keys(this.cartData)
+            const cartQuantitiesList = Object.values(this.cartData)
+            const totalPrice = cartQuantitiesList.reduce((previousValue, currentValue, currentIndex)=> previousValue+currentValue*this.getPrice(cartNamesList[currentIndex]), 0)
+            return totalPrice.toFixed(2)
+          },
         },
         props:{
           cartData:{
